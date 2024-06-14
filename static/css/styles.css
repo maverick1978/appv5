@@ -1,0 +1,15 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+/* Estilos específicos para la aplicación */
+/* Puedes añadir más estilos según el diseño deseado */

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Candidatos - AppJobs{% endblock %}
+
+{% block content %}
+    <h1>Candidatos</h1>
+    <!-- Lista de candidatos -->
+    {% for candidato in candidatos %}
+        <div class="card">
+            <div class="card-header">
+                {{ candidato.nombre }}
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ candidato.profesion }}</p>
+                <p class="card-text">{{ candidato.ciudad }}</p>
+                <a href="#" class="btn btn-primary">Ver Hoja de Vida</a>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+{% endblock %}

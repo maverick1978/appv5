@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppJobs - Crear Vacante</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Crear Vacante</h1>
+        <form action="/create_vacante" method="POST">
+            <div class="form-group">
+                <label for="title">Nombre de la Vacante:</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descripción:</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="salary">Salario Sugerido:</label>
+                <input type="text" class="form-control" id="salary" name="salary" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Fecha de Inicio:</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">Fecha de Fin:</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCreateVacanteModal()">Cancelar</button>
+        </form>
+    </div>
+</body>
+</html>

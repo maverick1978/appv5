@@ -1,0 +1,54 @@
+<!-- PopUp para registro -->
+<div class="modal" id="popupRegistroModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registro</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Formulario de registro -->
+        <form id="popupRegistroForm" action="{{ url_for('registro') }}" method="POST">
+          <div class="form-group">
+            <label for="popupName">Nombre:</label>
+            <input type="text" class="form-control" id="popupName" name="nombre" required>
+          </div>
+          <div class="form-group">
+            <label for="popupEmail">Correo:</label>
+            <input type="email" class="form-control" id="popupEmail" name="correo" required>
+          </div>
+          <div class="form-group">
+            <label for="popupPassword">Clave:</label>
+            <input type="password" class="form-control" id="popupPassword" name="clave" required>
+          </div>
+          <div class="form-group">
+            <label for="popupConfirmPassword">Confirmar Clave:</label>
+            <input type="password" class="form-control" id="popupConfirmPassword" name="confirmar_clave" required>
+          </div>
+          <div class="form-group">
+            <label for="popupUserType">Tipo de Usuario:</label>
+            <select class="form-control" id="popupUserType" name="tipo_usuario" required>
+              <option value="empresa">Empresa</option>
+              <option value="persona">Persona</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PopUp para login -->
+<div id="popupLoginModal" class="modal">
+  <div class="modal-content">
+      <span class="close" onclick="closePopupLoginModal()">&times;</span>
+      <!-- Contenido del formulario de login -->
+      <h2>Iniciar Sesión</h2>
+      <form action="/login" method="POST">
+          <!-- Campos del formulario -->
+      </form>
+  </div>
+</div>
+
+<!-- Otros PopUps pueden ser definidos aquí -->

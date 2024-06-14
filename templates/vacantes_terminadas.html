@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Vacantes Terminadas - AppJobs{% endblock %}
+
+{% block content %}
+    <h1>Vacantes Terminadas</h1>
+    <!-- Lista de vacantes terminadas -->
+    {% for vacante in vacantes %}
+        <div class="card">
+            <div class="card-header">
+                {{ vacante.title }}
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ vacante.description }}</p>
+                <p class="card-text">Salario: {{ vacante.salary }}</p>
+                <p class="card-text">Fecha de inicio: {{ vacante.start_date }}</p>
+                <p class="card-text">Fecha de fin: {{ vacante.end_date }}</p>
+                <a href="#" class="btn btn-primary">Reactivar</a>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+{% endblock %}
