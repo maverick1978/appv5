@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
 import os
 
@@ -18,6 +18,18 @@ def init_db():
         conn.executescript(f.read())
         conn.close()
 
+# Función para obtener vacantes activas
+def get_vacantes_activas():
+    conn = get_db_connection()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "activa"').fetchall()
+    conn.close()
+    return vacantes
+
+# Funciones para modales de vacantes
+def show_create_vacante_modal():
+    return render_template('create_vacante_modal.html')
+
+# Rutas principales
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -34,18 +46,14 @@ def login():
     
     if user:
         flash(f'Bienvenido {user["name"]}!', 'success')
-        if user_type == 'empresa':
-            return redirect(url_for('empresa'))
-        else:
-            return redirect(url_for('persona'))
+        return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
-        flash('Usuario o contraseña incorrecta', 'danger')
-        return redirect(url_for('index'))
+        return jsonify(success=False, message='Usuario o contraseña incorrecta')
 
 @app.route('/registro', methods=['POST'])
 def registro():
     nombre = request.form['name']
-    tipo_usuario = request.form['tipo_usuario']
+    user_type = request.form['user_type']
     correo = request.form['email']
     clave = request.form['password']
     confirmar_clave = request.form['confirm_password']
@@ -54,26 +62,26 @@ def registro():
     telefono = request.form['telefono']
 
     if clave != confirmar_clave:
-        flash('Las contraseñas no coinciden', 'danger')
-        return redirect(url_for('index'))
-
+        return jsonify(success=False, message='Las contraseñas no coinciden')
+    
     conn = get_db_connection()
     try:
-        if tipo_usuario == 'empresa':
-            conn.execute('INSERT INTO users (name, email, password, type, representante_legal) VALUES (?, ?, ?, ?, ?)',
-                         (nombre, correo, clave, tipo_usuario, representante_legal))
+        if user_type == 'empresa':
+            conn.execute('INSERT INTO users (name, email, password, type, representante_legal, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                         (nombre, correo, clave, user_type, representante_legal, direccion, telefono))
         else:
-            conn.execute('INSERT INTO users (name, email, password, type) VALUES (?, ?, ?, ?)',
-                         (nombre, correo, clave, tipo_usuario))
+            conn.execute('INSERT INTO users (name, email, password, type, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?)',
+                         (nombre, correo, clave, user_type, direccion, telefono))
         conn.commit()
-        flash('Registro exitoso. ¡Bienvenido!', 'success')
+        return jsonify(success=True, message='Usuario registrado exitosamente', redirect_url=url_for(user_type))
+    except sqlite3.IntegrityError:
+        return jsonify(success=False, message='El correo ya está registrado')
     except Exception as e:
-        flash(f'Error en el registro: {str(e)}', 'danger')
+        return jsonify(success=False, message=f'Error en el registro: {str(e)}')
     finally:
         conn.close()
 
-    return redirect(url_for('index'))
-
+# Rutas para la gestión de empresa
 @app.route('/empresa')
 def empresa():
     return render_template('empresa.html')
@@ -82,9 +90,19 @@ def empresa():
 def persona():
     return render_template('persona.html')
 
+# Rutas para modales de vacantes
+@app.route('/create_vacante_modal')
+def create_vacante_modal():
+    return show_create_vacante_modal()
+
+# Ruta para vacantes activas
+@app.route('/vacantes_activas')
+def vacantes_activas():
+    vacantes = get_vacantes_activas()
+    return render_template('vacantes_activas.html', vacantes=vacantes)
+
 # Inicialización de la base de datos al iniciar la aplicación
 if __name__ == '__main__':
-    if os.path.exists('BD/appjobs_data.db'):
-        os.remove('BD/appjobs_data.db')
-    init_db()  # Inicializar la base de datos
+    if not os.path.exists('BD/appjobs_data.db'):
+        init_db()
     app.run(debug=True)

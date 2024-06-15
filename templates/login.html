@@ -1,40 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppJobs - Inicio de Sesión</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Inicio de Sesión</h1>
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="email">Correo:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+<!-- Modal de Inicio de Sesión -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Iniciar Sesión</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="form-group">
-                <label for="password">Clave:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="emailLogin">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="emailLogin" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordLogin">Contraseña</label>
+                        <input type="password" class="form-control" id="passwordLogin" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user_type_login">Tipo de Usuario</label>
+                        <select class="form-control" id="user_type_login" name="user_type" required>
+                            <option value="persona">Persona</option>
+                            <option value="empresa">Empresa</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="user_type">Tipo de Usuario:</label>
-                <select class="form-control" id="user_type" name="user_type" required>
-                    <option value="empresa">Empresa</option>
-                    <option value="persona">Persona</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-        </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-        {% endwith %}
+        </div>
     </div>
-</body>
-</html>
+</div>

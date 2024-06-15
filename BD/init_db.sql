@@ -10,9 +10,10 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    confirm_password TEXT NOT NULL,
-    tipo_usuario TEXT NOT NULL,
-    representante_legal TEXT
+    user_type TEXT NOT NULL,
+    representante_legal TEXT,
+    direccion TEXT NOT NULL,
+    telefono TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS vacantes (
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS vacantes (
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     company_id INTEGER NOT NULL,
+    estado TEXT NOT NULL,
     FOREIGN KEY (company_id) REFERENCES users (id)
 );
 

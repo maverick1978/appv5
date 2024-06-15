@@ -1,83 +1,53 @@
-<!-- registro_modal.html -->
-<div class="modal fade" id="registroModal" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Modal de Registro -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="registroModalLabel">Registro de Usuario</h5>
+                <h5 class="modal-title" id="registerModalLabel">Registro de Usuario</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="registroForm" method="POST" action="{{ url_for('registro') }}">
+                <form id="registroForm" onsubmit="return validatePasswords()">
                     <div class="form-group">
-                        <label for="nombreRegistro">Nombre</label>
-                        <input type="text" class="form-control" id="nombreRegistro" name="nombre" required>
+                        <label for="nameRegister">Nombre</label>
+                        <input type="text" class="form-control" id="nameRegister" name="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="tipoUsuarioRegistro">Tipo de Usuario</label>
-                        <select class="form-control" id="tipoUsuarioRegistro" name="tipo_usuario" required onchange="toggleRepresentanteLegalRegistro()">
+                        <label for="emailRegister">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="emailRegister" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordRegister">Contraseña</label>
+                        <input type="password" class="form-control" id="passwordRegister" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPasswordRegister">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" id="confirmPasswordRegister" name="confirm_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user_type_register">Tipo de Usuario</label>
+                        <select class="form-control" id="user_type_register" name="user_type" required onchange="toggleRepresentanteLegalRegister()">
                             <option value="persona">Persona</option>
                             <option value="empresa">Empresa</option>
                         </select>
                     </div>
-                    <div class="form-group" id="representanteLegalGroupRegistro" style="display: none;">
-                        <label for="representanteLegalRegistro">Representante Legal</label>
-                        <input type="text" class="form-control" id="representanteLegalRegistro" name="representante_legal">
+                    <div class="form-group" id="representanteLegalGroupRegister" style="display: none;">
+                        <label for="representante_legal_register">Representante Legal</label>
+                        <input type="text" class="form-control" id="representante_legal_register" name="representante_legal">
                     </div>
                     <div class="form-group">
-                        <label for="direccionRegistro">Dirección</label>
-                        <input type="text" class="form-control" id="direccionRegistro" name="direccion" required>
+                        <label for="direccion_register">Dirección</label>
+                        <input type="text" class="form-control" id="direccion_register" name="direccion" required>
                     </div>
                     <div class="form-group">
-                        <label for="telefonoRegistro">Teléfono</label>
-                        <input type="text" class="form-control" id="telefonoRegistro" name="telefono" required>
+                        <label for="telefono_register">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono_register" name="telefono" required>
                     </div>
-                    <div class="form-group">
-                        <label for="emailRegistro">Correo</label>
-                        <input type="email" class="form-control" id="emailRegistro" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="claveRegistro">Clave</label>
-                        <input type="password" class="form-control" id="claveRegistro" name="clave" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmarClaveRegistro">Confirmar Clave</label>
-                        <input type="password" class="form-control" id="confirmarClaveRegistro" name="confirmar_clave" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Registrar</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-<!-- mensajeModal -->
-<div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="mensajeBody">
-                <!-- Mensaje será insertado aquí -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleRepresentanteLegalRegistro() {
-        var userType = document.getElementById('tipoUsuarioRegistro').value;
-        var representanteLegalGroup = document.getElementById('representanteLegalGroupRegistro');
-        if (userType === 'empresa') {
-            representanteLegalGroup.style.display = 'block';
-        } else {
-            representanteLegalGroup.style.display = 'none';
-        }
-    }
-</script>
