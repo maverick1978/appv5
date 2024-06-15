@@ -101,6 +101,7 @@ def vacantes_activas():
     vacantes = get_vacantes_activas()
     return render_template('vacantes_activas.html', vacantes=vacantes)
 
+
 # Inicialización de la base de datos al iniciar la aplicación
 if __name__ == '__main__':
     if not os.path.exists('BD/appjobs_data.db'):
