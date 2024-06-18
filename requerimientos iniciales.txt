@@ -6,7 +6,9 @@ desde VS- terminal
 winget install --id Git.Git -e --source winget
 
 pip desde extenciones VS
-pip install requirements.txt
+
 pip install flack
+pip install - r requirements.txt
+
 
 
