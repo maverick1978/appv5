@@ -1,4 +1,12 @@
 // Funciones para mostrar y cerrar modales
+function showCreateHVModal() {
+    $('#createHVModal').modal('show');
+}
+
+function closeCreateHVModal() {
+    $('#createHVModal').modal('hide');
+}
+
 function showCreateVacanteModal() {
     $('#createVacanteModal').modal('show');
 }
@@ -86,15 +94,19 @@ $(document).on('submit', '#registroForm', function(e) {
 
 // Función para mostrar mensajes
 function showMessage(message, type) {
-    var messageHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    `;
-    $('#messages').html(messageHtml);
+    $.ajax({
+        url: '/mensaje',
+        method: 'POST',
+        data: { message: message, type: type },
+        success: function(response) {
+            $('#messageContainer').html(response.messageHtml);
+            $('.alert').alert();
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para obtener mensaje:', error);
+            $('#messageContainer').html('<div class="alert alert-danger">Error al cargar mensaje. Por favor, inténtalo de nuevo más tarde.</div>');
+        }
+    });
 }
 
 // Función para cerrar mensajes
@@ -102,32 +114,48 @@ $(document).on('click', '.alert .close', function() {
     $(this).closest('.alert').alert('close');
 });
 
-// Función para mostrar vacantes activas
-function showVacantesActivas() {
+// Función para sugerir vacante
+function sugerirVacante() {
+    var profession = $('#profession').val(); // Obtener la profesión del usuario (ajustar según tu implementación)
     $.ajax({
-        url: '/vacantes_activas',
+        url: '/sugerir_vacantes/' + profession,
         method: 'GET',
-        success: function(html) {
-            $('#contenidoPrincipal').html(html);
+        success: function(vacantes) {
+            mostrarVacantes(vacantes);
         },
         error: function(error) {
-            console.error('Error en la solicitud AJAX para vacantes activas:', error);
-            showMessage('Error al cargar vacantes activas. Por favor, inténtalo de nuevo más tarde.', 'danger');
+            console.error('Error en la solicitud AJAX para sugerir vacantes:', error);
+            showMessage('Error al sugerir vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
         }
     });
 }
 
-// Función para mostrar vacantes terminadas
-function showVacantesTerminadas() {
+// Función para buscar vacantes
+function buscarVacantes() {
     $.ajax({
-        url: '/vacantes_terminadas',
+        url: '/vacantes_activas',
         method: 'GET',
-        success: function(html) {
-            $('#contenidoPrincipal').html(html);
+        success: function(vacantes) {
+            mostrarVacantes(vacantes);
         },
         error: function(error) {
-            console.error('Error en la solicitud AJAX para vacantes terminadas:', error);
-            showMessage('Error al cargar vacantes terminadas. Por favor, inténtalo de nuevo más tarde.', 'danger');
+            console.error('Error en la solicitud AJAX para buscar vacantes:', error);
+            showMessage('Error al buscar vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Función para cerrar sesión
+function logout() {
+    $.ajax({
+        url: '/logout',
+        method: 'POST',
+        success: function() {
+            window.location.href = '/';
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para logout:', error);
+            showMessage('Error al cerrar sesión. Por favor, inténtalo de nuevo más tarde.', 'danger');
         }
     });
 }
@@ -147,29 +175,30 @@ function showCandidatos() {
     });
 }
 
-// Manejador de eventos para los enlaces de la página empresa.html
-$(document).ready(function() {
-    $('#linkVacantesActivas').click(function(e) {
-        e.preventDefault();
-        showVacantesActivas();
-    });
-
-    $('#linkVacantesTerminadas').click(function(e) {
-        e.preventDefault();
-        showVacantesTerminadas();
-    });
-
-function showSection(sectionId) {
-    const sections = ['vacantesActivas', 'vacantesTerminadas', 'candidatos'];
-    sections.forEach(id => {
-        document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
+// Función para mostrar hojas de vida
+function showHojasDeVida() {
+    $.ajax({
+        url: '/hojas_vida',
+        method: 'GET',
+        success: function(html) {
+            $('#contenidoPrincipal').html(html);
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para hojas de vida:', error);
+            showMessage('Error al cargar hojas de vida. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
     });
 }
 
-
-    $('#linkCandidatos').click(function(e) {
-        e.preventDefault();
-        showCandidatos();
+// Función para mostrar las vacantes en el contenido principal
+function mostrarVacantes(vacantes) {
+    var html = '';
+    vacantes.forEach(function(vacante) {
+        html += '<div class="vacante">';
+        html += '<h3>' + vacante.titulo + '</h3>';
+        html += '<p>Empresa: ' + vacante.empresa + '</p>';
+        html += '<p>Descripción: ' + vacante.descripcion + '</p>';
+        html += '</div>';
     });
-});
-
+    $('#contenidoPrincipal').html(html);
+}

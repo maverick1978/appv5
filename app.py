@@ -1,60 +1,35 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import sqlite3
 import os
-
-def check_db_structure():
-    conn = sqlite3.connect('BD/appjobs_data.db')
-    cursor = conn.cursor()
-    
-    # Verifica si la tabla vacantes existe
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='vacantes';")
-    table_exists = cursor.fetchone()
-    
-    if table_exists:
-        print("La tabla 'vacantes' existe.")
-    else:
-        print("La tabla 'vacantes' no existe.")
-    
-    conn.close()
-
-check_db_structure()
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'supersecretkey'
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
-# Conexión a la base de datos
 def get_db_connection():
     conn = sqlite3.connect('BD/appjobs_data.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# Función para inicializar la base de datos
 def init_db():
     with open('BD/init_db.sql', 'r') as f:
         conn = get_db_connection()
         conn.executescript(f.read())
         conn.close()
 
-# Función para obtener vacantes activas
 def get_vacantes_activas():
     conn = get_db_connection()
-    try:
-        vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "activa"').fetchall()
-    except sqlite3.OperationalError as e:
-        print(f"Error en la consulta SQL: {e}")
-        vacantes = []
-    finally:
-        conn.close()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "activa"').fetchall()
+    conn.close()
     return vacantes
 
-# Función para obtener vacantes terminadas
 def get_vacantes_terminadas():
     conn = get_db_connection()
     vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "terminada"').fetchall()
     conn.close()
     return vacantes
 
-# Rutas principales
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -106,7 +81,6 @@ def registro():
     finally:
         conn.close()
 
-# Rutas para la gestión de empresa
 @app.route('/empresa')
 def empresa():
     return render_template('empresa.html')
@@ -115,27 +89,75 @@ def empresa():
 def persona():
     return render_template('persona.html')
 
-# Ruta para vacantes activas
-@app.route('/vacantes_activas')
+@app.route('/vacantes_activas', methods=['GET'])
 def vacantes_activas():
     vacantes = get_vacantes_activas()
     return jsonify([dict(vacante) for vacante in vacantes])
 
-# Ruta para vacantes terminadas
-@app.route('/vacantes_terminadas')
+@app.route('/vacantes_terminadas', methods=['GET'])
 def vacantes_terminadas():
     vacantes = get_vacantes_terminadas()
     return render_template('vacantes_terminadas.html', vacantes=vacantes)
 
-@app.route('/candidatos')
+@app.route('/candidatos', methods=['GET'])
 def candidatos():
     conn = get_db_connection()
     candidatos = conn.execute('SELECT * FROM candidatos').fetchall()
     conn.close()
     return jsonify([dict(candidato) for candidato in candidatos])
 
+@app.route('/create_hv_modal', methods=['POST'])
+def create_hv():
+    name = request.form['name']
+    surname = request.form['surname']
+    id_number = request.form['id_number']
+    address = request.form['address']
+    email = request.form['email']
+    profession = request.form['profession']
+    cv_file = request.files['cv_file']
 
-# Inicialización de la base de datos al iniciar la aplicación
+    if cv_file:
+        filename = secure_filename(cv_file.filename)
+        cv_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        conn = get_db_connection()
+        try:
+            conn.execute('INSERT INTO hojas_vida (user_id, cv_file) VALUES (?, ?)',
+                         (1, filename))  # Aquí debes ajustar para obtener el user_id correcto
+            conn.commit()
+            flash('Hoja de vida creada exitosamente', 'success')
+        except Exception as e:
+            flash(f'Error al crear hoja de vida: {str(e)}', 'danger')
+        finally:
+            conn.close()
+    else:
+        flash('Error al subir el archivo', 'danger')
+
+    return redirect(url_for('persona'))
+
+@app.route('/vacantes', methods=['GET'])
+def buscar_vacantes():
+    conn = get_db_connection()
+    vacantes = conn.execute('SELECT * FROM vacantes').fetchall()
+    conn.close()
+    return jsonify([dict(vacante) for vacante in vacantes])
+
+@app.route('/sugerir_vacantes/<profession>', methods=['GET'])
+def sugerir_vacantes(profession):
+    conn = get_db_connection()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE profesion = ?', (profession,)).fetchall()
+    conn.close()
+    return jsonify([dict(vacante) for vacante in vacantes])
+
+# Ruta para obtener mensaje
+@app.route('//get_message', methods=['POST'])
+def mensaje():
+    message = request.form['message']
+    type = request.form['type']
+    # Lógica para obtener el mensaje HTML según el tipo (success, danger, etc.)
+    message_html = render_template('mensaje.html', message=message, type=type)
+    return jsonify({'messageHtml': message_html})
+
 if __name__ == '__main__':
     if not os.path.exists('BD/appjobs_data.db'):
         init_db()

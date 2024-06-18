@@ -28,9 +28,16 @@ CREATE TABLE IF NOT EXISTS vacantes (
 CREATE TABLE IF NOT EXISTS hojas_vida (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    id_number TEXT NOT NULL,
+    address TEXT NOT NULL,
+    email TEXT NOT NULL,
+    profession TEXT NOT NULL,
     cv_file TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
 
 CREATE TABLE IF NOT EXISTS candidatos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
