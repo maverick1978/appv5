@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
@@ -45,6 +45,7 @@ def login():
     conn.close()
     
     if user:
+        session['user_id'] = user['id']  # Guarda el id del usuario en la sesión
         flash(f'Bienvenido {user["name"]}!', 'success')
         return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
@@ -73,13 +74,22 @@ def registro():
             conn.execute('INSERT INTO users (name, email, password, type, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?)',
                          (nombre, correo, clave, user_type, direccion, telefono))
         conn.commit()
-        return jsonify(success=True, message='Usuario registrado exitosamente', redirect_url=url_for(user_type))
+        response = jsonify(success=True, message='Usuario registrado exitosamente', redirect_url=url_for(user_type))
+        return response
     except sqlite3.IntegrityError:
-        return jsonify(success=False, message='El correo ya está registrado')
+        response = jsonify(success=False, message='El correo ya está registrado')
+        return response
     except Exception as e:
-        return jsonify(success=False, message=f'Error en el registro: {str(e)}')
+        response = jsonify(success=False, message=f'Error en el registro: {str(e)}')
+        return response
     finally:
         conn.close()
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)  # Elimina el user_id de la sesión
+    flash('Sesión cerrada exitosamente', 'info')
+    return redirect(url_for('index'))
 
 @app.route('/empresa')
 def empresa():
@@ -89,10 +99,18 @@ def empresa():
 def persona():
     return render_template('persona.html')
 
-@app.route('/vacantes_activas', methods=['GET'])
+@app.route('/vacantes_activas')
 def vacantes_activas():
     vacantes = get_vacantes_activas()
     return jsonify([dict(vacante) for vacante in vacantes])
+
+@app.route('/sugerir_vacantes/<profession>', methods=['GET'])
+def sugerir_vacantes(profession):
+    conn = get_db_connection()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE profesion LIKE ?', ('%' + profession + '%',)).fetchall()
+    conn.close()
+    return jsonify([dict(vacante) for vacante in vacantes])
+
 
 @app.route('/vacantes_terminadas', methods=['GET'])
 def vacantes_terminadas():
@@ -123,7 +141,7 @@ def create_hv():
         conn = get_db_connection()
         try:
             conn.execute('INSERT INTO hojas_vida (user_id, cv_file) VALUES (?, ?)',
-                         (1, filename))  # Aquí debes ajustar para obtener el user_id correcto
+                         (session['user_id'], filename))  # Usa session['user_id'] para obtener el user_id
             conn.commit()
             flash('Hoja de vida creada exitosamente', 'success')
         except Exception as e:
@@ -139,13 +157,6 @@ def create_hv():
 def buscar_vacantes():
     conn = get_db_connection()
     vacantes = conn.execute('SELECT * FROM vacantes').fetchall()
-    conn.close()
-    return jsonify([dict(vacante) for vacante in vacantes])
-
-@app.route('/sugerir_vacantes/<profession>', methods=['GET'])
-def sugerir_vacantes(profession):
-    conn = get_db_connection()
-    vacantes = conn.execute('SELECT * FROM vacantes WHERE profesion = ?', (profession,)).fetchall()
     conn.close()
     return jsonify([dict(vacante) for vacante in vacantes])
 

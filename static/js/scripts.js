@@ -94,68 +94,52 @@ $(document).on('submit', '#registroForm', function(e) {
 
 // Función para mostrar mensajes
 function showMessage(message, type) {
-    $.ajax({
-        url: '/mensaje',
-        method: 'POST',
-        data: { message: message, type: type },
-        success: function(response) {
-            $('#messageContainer').html(response.messageHtml);
-            $('.alert').alert();
-        },
-        error: function(error) {
-            console.error('Error en la solicitud AJAX para obtener mensaje:', error);
-            $('#messageContainer').html('<div class="alert alert-danger">Error al cargar mensaje. Por favor, inténtalo de nuevo más tarde.</div>');
-        }
-    });
+    var alertClass = '';
+    switch (type) {
+        case 'success':
+            alertClass = 'alert-success';
+            break;
+        case 'info':
+            alertClass = 'alert-info';
+            break;
+        case 'warning':
+            alertClass = 'alert-warning';
+            break;
+        case 'danger':
+            alertClass = 'alert-danger';
+            break;
+        default:
+            alertClass = 'alert-info';
+            break;
+    }
+
+    var html = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">';
+    html += '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
+    html += '<span aria-hidden="true">&times;</span></button>';
+    html += message + '</div>';
+
+    $('#messages').html(html); // Ajusta el selector donde deseas mostrar el mensaje
 }
 
-// Función para cerrar mensajes
-$(document).on('click', '.alert .close', function() {
-    $(this).closest('.alert').alert('close');
-});
-
-// Función para sugerir vacante
-function sugerirVacante() {
-    var profession = $('#profession').val(); // Obtener la profesión del usuario (ajustar según tu implementación)
-    $.ajax({
-        url: '/sugerir_vacantes/' + profession,
-        method: 'GET',
-        success: function(vacantes) {
-            mostrarVacantes(vacantes);
-        },
-        error: function(error) {
-            console.error('Error en la solicitud AJAX para sugerir vacantes:', error);
-            showMessage('Error al sugerir vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
-        }
-    });
-}
-
-// Función para buscar vacantes
-function buscarVacantes() {
-    $.ajax({
-        url: '/vacantes_activas',
-        method: 'GET',
-        success: function(vacantes) {
-            mostrarVacantes(vacantes);
-        },
-        error: function(error) {
-            console.error('Error en la solicitud AJAX para buscar vacantes:', error);
-            showMessage('Error al buscar vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
-        }
-    });
-}
+// Resto del código JavaScript...
 
 // Función para cerrar sesión
 function logout() {
     $.ajax({
         url: '/logout',
         method: 'POST',
-        success: function() {
-            window.location.href = '/';
+        success: function(response) {
+            if (response.success) {
+                window.location.href = '/';
+            } else {
+                showMessage(response.message, "danger");
+            }
         },
         error: function(error) {
             console.error('Error en la solicitud AJAX para logout:', error);
             showMessage('Error al cerrar sesión. Por favor, inténtalo de nuevo más tarde.', 'danger');
+            ///Redireccionar al index en caso de error también
+            window.location.href = '/index.html';
         }
     });
 }
@@ -202,3 +186,48 @@ function mostrarVacantes(vacantes) {
     });
     $('#contenidoPrincipal').html(html);
 }
+
+// Función para sugerir vacante
+// Función para sugerir vacantes según la profesión del usuario
+function sugerirVacante() {
+    var profession = $('#profession').val(); // Obtener la profesión del usuario (ajustar según tu implementación)
+    $.ajax({
+        url: '/sugerir_vacantes/' + profession,
+        method: 'GET',
+        success: function(vacantes) {
+            if (vacantes.length > 0) {
+                mostrarVacantes(vacantes);
+            } else {
+                showMessage('No se encontraron vacantes para tu profesión.', 'info');
+            }
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para sugerir vacantes:', error);
+            showMessage('Error al sugerir vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Función para buscar vacantes
+function buscarVacantes() {
+    $.ajax({
+        url: '/vacantes_activas',
+        method: 'GET',
+        success: function(vacantes) {
+            if (vacantes.length > 0) {
+                mostrarVacantes(vacantes);
+            } else {
+                showMessage('No se encontraron vacantes.', 'info');
+            }
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para buscar vacantes:', error);
+            showMessage('Error al buscar vacantes. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Manejador de eventos para cerrar mensajes
+$(document).on('click', '.alert .close', function() {
+    $(this).closest('.alert').alert('close');
+});
