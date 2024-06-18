@@ -20,7 +20,7 @@ function validatePasswords() {
     var password = document.getElementById("passwordRegister").value;
     var confirmPassword = document.getElementById("confirmPasswordRegister").value;
     if (password !== confirmPassword) {
-        alert("Las contraseñas no coinciden.");
+        showMessage("Las contraseñas no coinciden.", "danger");
         return false;
     }
     return true;
@@ -49,9 +49,11 @@ $(document).on('submit', '#loginForm', function(e) {
             if (response.success) {
                 window.location.href = response.redirect_url;
             } else {
-                $('#mensajeBody').text(response.message);
-                $('#mensajeModal').modal('show');
+                showMessage(response.message, "danger");
             }
+        },
+        error: function(error) {
+            showMessage("Error en la solicitud AJAX para login. Por favor, inténtalo de nuevo más tarde.", "danger");
         }
     });
 });
@@ -66,8 +68,7 @@ $(document).on('submit', '#registroForm', function(e) {
             url: '/registro',
             data: formData,
             success: function(response) {
-                $('#mensajeBody').text(response.message);
-                $('#mensajeModal').modal('show');
+                showMessage(response.message, response.success ? "success" : "danger");
                 if (response.success) {
                     $('#registerModal').modal('hide');
                     $('#registroForm')[0].reset();
@@ -75,14 +76,100 @@ $(document).on('submit', '#registroForm', function(e) {
                         window.location.href = response.redirect_url;
                     }, 2000);  // Espera 2 segundos antes de redirigir
                 }
+            },
+            error: function(error) {
+                showMessage("Error en la solicitud AJAX para registro. Por favor, inténtalo de nuevo más tarde.", "danger");
             }
         });
     }
 });
 
-// Función para mostrar vacantes activas
-function showVacantesActivas() {
-    window.location.href = '/vacantes_activas';
+// Función para mostrar mensajes
+function showMessage(message, type) {
+    var messageHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+    $('#messages').html(messageHtml);
 }
 
-// Otras funciones existentes como showCreateVacanteModal(), etc.
+// Función para cerrar mensajes
+$(document).on('click', '.alert .close', function() {
+    $(this).closest('.alert').alert('close');
+});
+
+// Función para mostrar vacantes activas
+function showVacantesActivas() {
+    $.ajax({
+        url: '/vacantes_activas',
+        method: 'GET',
+        success: function(html) {
+            $('#contenidoPrincipal').html(html);
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para vacantes activas:', error);
+            showMessage('Error al cargar vacantes activas. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Función para mostrar vacantes terminadas
+function showVacantesTerminadas() {
+    $.ajax({
+        url: '/vacantes_terminadas',
+        method: 'GET',
+        success: function(html) {
+            $('#contenidoPrincipal').html(html);
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para vacantes terminadas:', error);
+            showMessage('Error al cargar vacantes terminadas. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Función para mostrar candidatos
+function showCandidatos() {
+    $.ajax({
+        url: '/candidatos',
+        method: 'GET',
+        success: function(html) {
+            $('#contenidoPrincipal').html(html);
+        },
+        error: function(error) {
+            console.error('Error en la solicitud AJAX para candidatos:', error);
+            showMessage('Error al cargar candidatos. Por favor, inténtalo de nuevo más tarde.', 'danger');
+        }
+    });
+}
+
+// Manejador de eventos para los enlaces de la página empresa.html
+$(document).ready(function() {
+    $('#linkVacantesActivas').click(function(e) {
+        e.preventDefault();
+        showVacantesActivas();
+    });
+
+    $('#linkVacantesTerminadas').click(function(e) {
+        e.preventDefault();
+        showVacantesTerminadas();
+    });
+
+function showSection(sectionId) {
+    const sections = ['vacantesActivas', 'vacantesTerminadas', 'candidatos'];
+    sections.forEach(id => {
+        document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
+    });
+}
+
+
+    $('#linkCandidatos').click(function(e) {
+        e.preventDefault();
+        showCandidatos();
+    });
+});
+

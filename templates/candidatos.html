@@ -1,21 +1,21 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppJobs - Candidatos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Candidatos</h1>
+        <!-- Sección para mostrar candidatos -->
+        <div id="candidatos" class="mt-4"></div>
+    </div>
 
-{% block title %}Candidatos - AppJobs{% endblock %}
-
-{% block content %}
-    <h1>Candidatos</h1>
-    <!-- Lista de candidatos -->
-    {% for candidato in candidatos %}
-        <div class="card">
-            <div class="card-header">
-                {{ candidato.nombre }}
-            </div>
-            <div class="card-body">
-                <p class="card-text">{{ candidato.profesion }}</p>
-                <p class="card-text">{{ candidato.ciudad }}</p>
-                <a href="#" class="btn btn-primary">Ver Hoja de Vida</a>
-            </div>
-        </div>
-        <br>
-    {% endfor %}
-{% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

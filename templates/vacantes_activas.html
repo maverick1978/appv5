@@ -1,10 +1,8 @@
-{% extends 'base.html' %}
-
-{% block title %}Vacantes Activas - AppJobs{% endblock %}
-
+<!-- vacantes_activas.html -->
 {% block content %}
-    <h1>Vacantes Activas</h1>
-    <!-- Lista de vacantes activas -->
+<h1>Vacantes Activas</h1>
+<!-- Lista de vacantes activas -->
+{% if vacantes %}
     {% for vacante in vacantes %}
         <div class="card">
             <div class="card-header">
@@ -15,9 +13,12 @@
                 <p class="card-text">Salario: {{ vacante.salary }}</p>
                 <p class="card-text">Fecha de inicio: {{ vacante.start_date }}</p>
                 <p class="card-text">Fecha de fin: {{ vacante.end_date }}</p>
-                <a href="#" class="btn btn-primary">Aplicar</a>
+                <a href="#" class="btn btn-primary">Reactivar</a>
             </div>
         </div>
         <br>
     {% endfor %}
+{% else %}
+    <p>No hay vacantes activas en este momento.</p>
+{% endif %}
 {% endblock %}

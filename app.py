@@ -2,6 +2,23 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 import sqlite3
 import os
 
+def check_db_structure():
+    conn = sqlite3.connect('BD/appjobs_data.db')
+    cursor = conn.cursor()
+    
+    # Verifica si la tabla vacantes existe
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='vacantes';")
+    table_exists = cursor.fetchone()
+    
+    if table_exists:
+        print("La tabla 'vacantes' existe.")
+    else:
+        print("La tabla 'vacantes' no existe.")
+    
+    conn.close()
+
+check_db_structure()
+
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'supersecretkey'
 
@@ -21,13 +38,21 @@ def init_db():
 # Función para obtener vacantes activas
 def get_vacantes_activas():
     conn = get_db_connection()
-    vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "activa"').fetchall()
-    conn.close()
+    try:
+        vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "activa"').fetchall()
+    except sqlite3.OperationalError as e:
+        print(f"Error en la consulta SQL: {e}")
+        vacantes = []
+    finally:
+        conn.close()
     return vacantes
 
-# Funciones para modales de vacantes
-def show_create_vacante_modal():
-    return render_template('create_vacante_modal.html')
+# Función para obtener vacantes terminadas
+def get_vacantes_terminadas():
+    conn = get_db_connection()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE estado = "terminada"').fetchall()
+    conn.close()
+    return vacantes
 
 # Rutas principales
 @app.route('/')
@@ -90,16 +115,24 @@ def empresa():
 def persona():
     return render_template('persona.html')
 
-# Rutas para modales de vacantes
-@app.route('/create_vacante_modal')
-def create_vacante_modal():
-    return show_create_vacante_modal()
-
 # Ruta para vacantes activas
 @app.route('/vacantes_activas')
 def vacantes_activas():
     vacantes = get_vacantes_activas()
-    return render_template('vacantes_activas.html', vacantes=vacantes)
+    return jsonify([dict(vacante) for vacante in vacantes])
+
+# Ruta para vacantes terminadas
+@app.route('/vacantes_terminadas')
+def vacantes_terminadas():
+    vacantes = get_vacantes_terminadas()
+    return render_template('vacantes_terminadas.html', vacantes=vacantes)
+
+@app.route('/candidatos')
+def candidatos():
+    conn = get_db_connection()
+    candidatos = conn.execute('SELECT * FROM candidatos').fetchall()
+    conn.close()
+    return jsonify([dict(candidato) for candidato in candidatos])
 
 
 # Inicialización de la base de datos al iniciar la aplicación
