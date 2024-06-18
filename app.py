@@ -89,7 +89,7 @@ def registro():
 def logout():
     session.pop('user_id', None)  # Elimina el user_id de la sesión
     flash('Sesión cerrada exitosamente', 'info')
-    return redirect(url_for('index'))
+    return jsonify(success=True, redirect_url=url_for('index'))
 
 @app.route('/empresa')
 def empresa():
@@ -110,7 +110,6 @@ def sugerir_vacantes(profession):
     vacantes = conn.execute('SELECT * FROM vacantes WHERE profesion LIKE ?', ('%' + profession + '%',)).fetchall()
     conn.close()
     return jsonify([dict(vacante) for vacante in vacantes])
-
 
 @app.route('/vacantes_terminadas', methods=['GET'])
 def vacantes_terminadas():
@@ -161,7 +160,7 @@ def buscar_vacantes():
     return jsonify([dict(vacante) for vacante in vacantes])
 
 # Ruta para obtener mensaje
-@app.route('//get_message', methods=['POST'])
+@app.route('/get_message', methods=['POST'])
 def mensaje():
     message = request.form['message']
     type = request.form['type']
