@@ -98,6 +98,7 @@ function showMessage(message, type) {
         data: { message: message, type: type },
         success: function(response) {
             $('#messageContainer').html(response.messageHtml);
+            $('#mensajeModal').modal('show');
         },
         error: function(error) {
             console.log("Error en la solicitud AJAX para obtener mensaje HTML.", error);
