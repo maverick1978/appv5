@@ -9,7 +9,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="registroForm" onsubmit="return validatePasswords()">
+                <div id="registroMessage" class="alert" role="alert" style="display:none;"></div>
+                <form id="registroForm" action="/registro" method="post" onsubmit="return validatePasswords()">
                     <div class="form-group">
                         <label for="nameRegister">Nombre</label>
                         <input type="text" class="form-control" id="nameRegister" name="name" required>
@@ -51,3 +52,54 @@
         </div>
     </div>
 </div>
+<script>
+function toggleRepresentanteLegalRegister() {
+    var userType = document.getElementById('user_type_register').value;
+    var representanteLegalGroup = document.getElementById('representanteLegalGroupRegister');
+    if (userType === 'empresa') {
+        representanteLegalGroup.style.display = 'block';
+    } else {
+        representanteLegalGroup.style.display = 'none';
+    }
+}
+
+function validatePasswords() {
+    var password = document.getElementById('passwordRegister').value;
+    var confirmPassword = document.getElementById('confirmPasswordRegister').value;
+    if (password !== confirmPassword) {
+        showError('Las contraseñas no coinciden');
+        return false;
+    }
+    return true;
+}
+
+function showError(message) {
+    var messageDiv = document.getElementById('registroMessage');
+    messageDiv.className = 'alert alert-danger';
+    messageDiv.innerText = message;
+    messageDiv.style.display = 'block';
+}
+
+document.getElementById('registroForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var form = event.target;
+
+    fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = data.redirect_url;
+        } else {
+            showError(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Error en el registro');
+    });
+});
+</script>

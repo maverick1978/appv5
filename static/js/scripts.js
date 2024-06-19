@@ -78,9 +78,9 @@ $(document).on('submit', '#registroForm', function(e) {
             success: function(response) {
                 showMessage(response.message, response.success ? "success" : "danger");
                 if (response.success) {
-                    $('#registerModal').modal('hide');
-                    $('#registroForm')[0].reset();
-                    window.location.href = response.redirect_url;
+                    $('#registerModal').modal('hide');  // Cierra el modal de registro
+                    $('#registroForm')[0].reset();      // Limpia el formulario
+                    window.location.href = response.redirect_url;  // Redirige al usuario según la URL proporcionada
                 }
             },
             error: function(error) {

@@ -41,11 +41,11 @@ def login():
     user_type = request.form['user_type']
     
     conn = get_db_connection()
-    user = conn.execute('SELECT * FROM users WHERE email = ? AND password = ? AND type = ?', (email, password, user_type)).fetchone()
+    user = conn.execute('SELECT * FROM users WHERE email = ? AND password = ? AND user_type = ?', (email, password, user_type)).fetchone()
     conn.close()
     
     if user:
-        session['user_id'] = user['id']  # Guarda el id del usuario en la sesión
+        session['user_id'] = user['id']
         flash(f'Bienvenido {user["name"]}!', 'success')
         return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
@@ -64,14 +64,14 @@ def registro():
 
     if clave != confirmar_clave:
         return jsonify(success=False, message='Las contraseñas no coinciden')
-    
+
     conn = get_db_connection()
     try:
         if user_type == 'empresa':
-            conn.execute('INSERT INTO users (name, email, password, type, representante_legal, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            conn.execute('INSERT INTO users (name, email, password, user_type, representante_legal, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?, ?)',
                          (nombre, correo, clave, user_type, representante_legal, direccion, telefono))
         else:
-            conn.execute('INSERT INTO users (name, email, password, type, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?)',
+            conn.execute('INSERT INTO users (name, email, password, user_type, direccion, telefono) VALUES (?, ?, ?, ?, ?, ?)',
                          (nombre, correo, clave, user_type, direccion, telefono))
         conn.commit()
         response = jsonify(success=True, message='Usuario registrado exitosamente', redirect_url=url_for(user_type))
@@ -84,10 +84,10 @@ def registro():
         return response
     finally:
         conn.close()
-
+        
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user_id', None)  # Elimina el user_id de la sesión
+    session.pop('user_id', None)
     flash('Sesión cerrada exitosamente', 'info')
     return jsonify(success=True, redirect_url=url_for('index'))
 
@@ -107,7 +107,7 @@ def vacantes_activas():
 @app.route('/sugerir_vacantes/<profession>', methods=['GET'])
 def sugerir_vacantes(profession):
     conn = get_db_connection()
-    vacantes = conn.execute('SELECT * FROM vacantes WHERE profesion LIKE ?', ('%' + profession + '%',)).fetchall()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE profession LIKE ?', ('%' + profession + '%',)).fetchall()
     conn.close()
     return jsonify([dict(vacante) for vacante in vacantes])
 
@@ -139,8 +139,8 @@ def create_hv():
         
         conn = get_db_connection()
         try:
-            conn.execute('INSERT INTO hojas_vida (user_id, cv_file) VALUES (?, ?)',
-                         (session['user_id'], filename))  # Usa session['user_id'] para obtener el user_id
+            conn.execute('INSERT INTO hojas_vida (user_id, name, surname, id_number, address, email, profession, cv_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                         (session['user_id'], name, surname, id_number, address, email, profession, filename))
             conn.commit()
             flash('Hoja de vida creada exitosamente', 'success')
         except Exception as e:
@@ -159,16 +159,14 @@ def buscar_vacantes():
     conn.close()
     return jsonify([dict(vacante) for vacante in vacantes])
 
-# Ruta para obtener mensaje
 @app.route('/get_message', methods=['POST'])
 def mensaje():
     message = request.form['message']
     type = request.form['type']
-    # Lógica para obtener el mensaje HTML según el tipo (success, danger, etc.)
     message_html = render_template('mensaje.html', message=message, type=type)
     return jsonify({'messageHtml': message_html})
 
 if __name__ == '__main__':
     if not os.path.exists('BD/appjobs_data.db'):
         init_db()
-    app.run(debug=True)
+    app.run(debug=False)

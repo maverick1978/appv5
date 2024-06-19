@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 <body>
-    <!-- Incluye el header desde base.html -->
     {% include 'base.html' %}
     
     <div class="container mt-4">
@@ -17,7 +16,6 @@
         <button type="button" class="btn btn-secondary" onclick="showRegisterModal()">Registrarse</button>
     </div>
 
-    <!-- Incluye los modales -->
     {% include 'login.html' %}
     {% include 'registro_modal.html' %}
     {% include 'mensaje.html' %}
