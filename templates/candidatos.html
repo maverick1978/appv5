@@ -1,21 +1,27 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppJobs - Candidatos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Candidatos</h1>
-        <!-- Sección para mostrar candidatos -->
-        <div id="candidatos" class="mt-4"></div>
-    </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-</body>
-</html>
+{% block content %}
+<h1>Candidatos</h1>
+    {% if candidatos %}
+        {% for candidato in candidatos %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    {{ candidato.name }}
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Nombre: {{ candidato.name }}</p>
+                    <p class="card-text">Correo: {{ candidato.email }}</p>
+                    <p class="card-text">profesión: {{ candidato.profession }}</p>
+                    <!-- cv_file-->
+                    <!-- Puedes agregar más detalles según la estructura de tu base de datos -->
+                    
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    profession TEXT NOT NULL,
+                    cv_file TEXT NOT NULL
+                    <a href="#" class="btn btn-primary">Ver Detalles</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+                <p>No hay candidatos registrados.</p>
+    {% endif %}
+{% endblock %}

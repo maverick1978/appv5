@@ -1,5 +1,3 @@
--- BD/init_db.sql
-
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS vacantes;
 DROP TABLE IF EXISTS hojas_vida;
@@ -38,11 +36,12 @@ CREATE TABLE IF NOT EXISTS hojas_vida (
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-
 CREATE TABLE IF NOT EXISTS candidatos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     profession TEXT NOT NULL,
-    cv_file TEXT NOT NULL
+    cv_file TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );

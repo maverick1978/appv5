@@ -28,7 +28,7 @@ function validatePasswords() {
     var password = document.getElementById("passwordRegister").value;
     var confirmPassword = document.getElementById("confirmPasswordRegister").value;
     if (password !== confirmPassword) {
-        showMessage("Las contraseñas no coinciden.", "danger");
+        mostrarMensaje("Las contraseñas no coinciden.", "danger");
         return false;
     }
     return true;
@@ -102,6 +102,37 @@ function showMessage(message, type) {
         },
         error: function(error) {
             console.log("Error en la solicitud AJAX para obtener mensaje HTML.", error);
+        }
+    });
+}
+
+// Función para buscar candidatos
+function buscarCandidatos() {
+    $.ajax({
+        type: 'GET',
+        url: '/candidatos',
+        success: function(response) {
+            // Limpiamos cualquier contenido previo en el contenedor de candidatos
+            $('#candidatosList').empty();
+
+            // Iteramos sobre la lista de candidatos recibida en la respuesta
+            response.forEach(function(candidato) {
+                // Creamos un elemento de lista para cada candidato
+                var listItem = $('<li>').addClass('list-group-item');
+                var nombre = $('<h5>').addClass('card-title').text(candidato.name);
+                var email = $('<p>').addClass('card-text').text('Email: ' + candidato.email);
+                var profession = $('<p>').addClass('card-text').text('Profesión: ' + candidato.profession);
+                
+                // Agregamos el nombre, email y profesión al elemento de lista
+                listItem.append(nombre, email, profession);
+
+                // Agregamos el elemento de lista al contenedor de candidatos
+                $('#candidatosList').append(listItem);
+            });
+        },
+        error: function(error) {
+            console.error('Error al buscar candidatos:', error);
+            // Manejo de errores, si es necesario
         }
     });
 }

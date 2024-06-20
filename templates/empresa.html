@@ -14,7 +14,7 @@
         <button class="btn btn-primary" onclick="showCreateVacanteModal()">Crear Vacante</button>
         <button class="btn btn-secondary" onclick="showSection('vacantesActivas')">Ver Vacantes Activas</button>
         <button class="btn btn-secondary" onclick="showSection('vacantesTerminadas')">Ver Vacantes Terminadas</button>
-        <button class="btn btn-secondary" onclick="showSection('candidatos')">Buscar Candidatos</button>
+        <button class="btn btn-secondary" onclick="buscarCandidatos()">Buscar Candidatos</button>
         <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
     </div>
 
@@ -30,7 +30,10 @@
 
     <!-- Contenedor para candidatos -->
     <div id="candidatos" style="display:none;">
-        {% include 'candidatos.html' %}
+        <h2>Candidatos Registrados</h2>
+        <ul id="candidatosList" class="list-group">
+            <!-- Aquí se agregarán dinámicamente los candidatos -->
+        </ul>
     </div>
 
     <!-- Modal para crear vacante -->
@@ -48,6 +51,40 @@
                 document.getElementById(id).style.display = (id === sectionId) ? 'block' : 'none';
             });
         }
+
+        function buscarCandidatos() {
+            $.ajax({
+                type: 'GET',
+                url: '/candidatos',
+                success: function(response) {
+                    // Limpiamos cualquier contenido previo en el contenedor de candidatos
+                    $('#candidatosList').empty();
+
+                    // Iteramos sobre la lista de candidatos recibida en la respuesta
+                    response.forEach(function(candidato) {
+                        // Creamos un elemento de lista para cada candidato
+                        var listItem = $('<li>').addClass('list-group-item');
+                        var nombre = $('<h5>').addClass('card-title').text(candidato.name);
+                        var email = $('<p>').addClass('card-text').text('Email: ' + candidato.email);
+                        var profession = $('<p>').addClass('card-text').text('Profesión: ' + candidato.profession);
+                        
+                        // Agregamos el nombre, email y profesión al elemento de lista
+                        listItem.append(nombre, email, profession);
+
+                        // Agregamos el elemento de lista al contenedor de candidatos
+                        $('#candidatosList').append(listItem);
+                    });
+                    
+                    // Mostramos el contenedor de candidatos después de cargar los datos
+                    showSection('candidatos');
+                },
+                error: function(error) {
+                    console.error('Error al buscar candidatos:', error);
+                    // Manejo de errores, si es necesario
+                }
+            });
+        }
     </script>
 </body>
 </html>
+
