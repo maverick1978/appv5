@@ -46,11 +46,13 @@ def login():
     
     if user:
         session['user_id'] = user['id']
+        session['user_name'] = user['name']
         flash(f'Bienvenido {user["name"]}!', 'success')
         return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
         return jsonify(success=False, message='Usuario o contraseña incorrecta')
-
+    
+    
 @app.route('/registro', methods=['POST'])
 def registro():
     nombre = request.form['name']
@@ -88,16 +90,25 @@ def registro():
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
+    session.pop('user_name', None)
     flash('Sesión cerrada exitosamente', 'info')
     return jsonify(success=True, redirect_url=url_for('index'))
 
 @app.route('/empresa')
 def empresa():
-    return render_template('empresa.html')
+    user_id = session.get('user_id')
+    user_name = session.get('user_name')
+    if user_id and user_name:
+        return render_template('empresa.html', name=user_name)
+    return redirect(url_for('index'))
 
 @app.route('/persona')
 def persona():
-    return render_template('persona.html')
+    user_id = session.get('user_id')
+    user_name = session.get('user_name')
+    if user_id and user_name:
+        return render_template('persona.html', name=user_name)
+    return redirect(url_for('index'))
 
 @app.route('/vacantes_activas')
 def vacantes_activas():

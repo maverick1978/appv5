@@ -10,7 +10,7 @@
 <body>
     {% include 'base.html' %}
     <div class="container">
-        <h1>Bienvenido Usuario</h1>
+        <h1>Bienvenido: {{ name }}</h1>
         <button class="btn btn-primary" onclick="showCreateHVModal()">Crear Hoja de Vida</button>
         <button class="btn btn-secondary" onclick="buscarVacantes()">Buscar Vacantes</button>
         <button class="btn btn-secondary" onclick="sugerirVacante()">Sugerir Vacante</button>

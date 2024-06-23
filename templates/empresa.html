@@ -10,7 +10,7 @@
 <body>
     {% include 'base.html' %}
     <div class="container">
-        <h1>Bienvenida Empresa</h1>
+        <h1>Bienvenida Empresa: {{ name }}</h1>
         <button class="btn btn-primary" onclick="showCreateVacanteModal()">Crear Vacante</button>
         <button class="btn btn-secondary" onclick="showSection('vacantesActivas')">Ver Vacantes Activas</button>
         <button class="btn btn-secondary" onclick="showSection('vacantesTerminadas')">Ver Vacantes Terminadas</button>
@@ -87,4 +87,3 @@
     </script>
 </body>
 </html>
-
