@@ -51,12 +51,16 @@ def login():
     if user:
         session['user_id'] = user['id']
         session['user_name'] = user['name']
+<<<<<<< HEAD
         session['user_type'] = user['user_type']
+=======
+>>>>>>> 7270c68e1f25d74a227e6effd1656cb8558598bb
         flash(f'Bienvenido {user["name"]}!', 'success')
         return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
         return jsonify(success=False, message='Usuario o contraseña incorrecta')
-
+    
+    
 @app.route('/registro', methods=['POST'])
 def registro():
     nombre = request.form['name']
@@ -95,30 +99,45 @@ def registro():
 def logout():
     session.pop('user_id', None)
     session.pop('user_name', None)
+<<<<<<< HEAD
     session.pop('user_type', None)
+=======
+>>>>>>> 7270c68e1f25d74a227e6effd1656cb8558598bb
     flash('Sesión cerrada exitosamente', 'info')
     return jsonify(success=True, redirect_url=url_for('index'))
 
 @app.route('/empresa')
 def empresa():
     user_id = session.get('user_id')
+<<<<<<< HEAD
     if user_id:
         conn = get_db_connection()
         user = conn.execute('SELECT name FROM users WHERE id = ?', (user_id,)).fetchone()
         conn.close()
         if user:
             return render_template('empresa.html', name=user['name'])
+=======
+    user_name = session.get('user_name')
+    if user_id and user_name:
+        return render_template('empresa.html', name=user_name)
+>>>>>>> 7270c68e1f25d74a227e6effd1656cb8558598bb
     return redirect(url_for('index'))
 
 @app.route('/persona')
 def persona():
     user_id = session.get('user_id')
+<<<<<<< HEAD
     if user_id:
         conn = get_db_connection()
         user = conn.execute('SELECT name FROM users WHERE id = ?', (user_id,)).fetchone()
         conn.close()
         if user:
             return render_template('persona.html', name=user['name'])
+=======
+    user_name = session.get('user_name')
+    if user_id and user_name:
+        return render_template('persona.html', name=user_name)
+>>>>>>> 7270c68e1f25d74a227e6effd1656cb8558598bb
     return redirect(url_for('index'))
 
 @app.route('/vacantes_activas')
