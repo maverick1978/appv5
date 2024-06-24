@@ -7,6 +7,10 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = 'supersecretkey'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 def get_db_connection():
     conn = sqlite3.connect('BD/appjobs_data.db')
     conn.row_factory = sqlite3.Row
@@ -46,6 +50,8 @@ def login():
     
     if user:
         session['user_id'] = user['id']
+        session['user_name'] = user['name']
+        session['user_type'] = user['user_type']
         flash(f'Bienvenido {user["name"]}!', 'success')
         return jsonify(success=True, name=user["name"], redirect_url=url_for(user_type))
     else:
@@ -88,16 +94,32 @@ def registro():
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
+    session.pop('user_name', None)
+    session.pop('user_type', None)
     flash('Sesión cerrada exitosamente', 'info')
     return jsonify(success=True, redirect_url=url_for('index'))
 
 @app.route('/empresa')
 def empresa():
-    return render_template('empresa.html')
+    user_id = session.get('user_id')
+    if user_id:
+        conn = get_db_connection()
+        user = conn.execute('SELECT name FROM users WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+        if user:
+            return render_template('empresa.html', name=user['name'])
+    return redirect(url_for('index'))
 
 @app.route('/persona')
 def persona():
-    return render_template('persona.html')
+    user_id = session.get('user_id')
+    if user_id:
+        conn = get_db_connection()
+        user = conn.execute('SELECT name FROM users WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+        if user:
+            return render_template('persona.html', name=user['name'])
+    return redirect(url_for('index'))
 
 @app.route('/vacantes_activas')
 def vacantes_activas():
@@ -107,7 +129,7 @@ def vacantes_activas():
 @app.route('/sugerir_vacantes/<profession>', methods=['GET'])
 def sugerir_vacantes(profession):
     conn = get_db_connection()
-    vacantes = conn.execute('SELECT * FROM vacantes WHERE profession LIKE ?', ('%' + profession + '%',)).fetchall()
+    vacantes = conn.execute('SELECT * FROM vacantes WHERE title LIKE ?', ('%' + profession + '%',)).fetchall()
     conn.close()
     return jsonify([dict(vacante) for vacante in vacantes])
 
@@ -123,7 +145,7 @@ def candidatos():
     conn.close()
     return jsonify([dict(candidato) for candidato in candidatos])
 
-@app.route('/create_hv_modal', methods=['POST'])
+@app.route('/create_hv', methods=['POST'])
 def create_hv():
     name = request.form['name']
     surname = request.form['surname']
@@ -135,8 +157,9 @@ def create_hv():
 
     if cv_file:
         filename = secure_filename(cv_file.filename)
-        cv_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        cv_file.save(filepath)
+
         conn = get_db_connection()
         try:
             conn.execute('INSERT INTO hojas_vida (user_id, name, surname, id_number, address, email, profession, cv_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
